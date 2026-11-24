@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6b3b">
+<meta name="description" content="AgSolo Campo — cadastro rural, pontos georreferenciados e monitoramento agrícola.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>AgSolo Campo</title>
+<style>
+:root{--g:#247a43;--bg:#f3f6f2;--ink:#1d2a20;--muted:#647267;--line:#dce5dc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+header{background:#1f6b3b;color:white;padding:18px 16px 14px;position:sticky;top:0;z-index:3}
+header h1{font-size:21px;margin:0}header small{opacity:.85}
+nav{display:flex;gap:6px;padding:10px;background:white;position:sticky;top:67px;z-index:2;overflow:auto}
+nav button{border:0;border-radius:22px;padding:10px 13px;background:#edf3ed;color:#31523a;white-space:nowrap;font-weight:600}
+nav button.active{background:var(--g);color:white}
+main{padding:14px;max-width:850px;margin:auto}.page{display:none}.page.active{display:block}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:15px;margin:0 0 13px;box-shadow:0 2px 8px #1b4b2410}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd8cc;border-radius:10px;background:white;font:inherit;color:var(--ink)}
+textarea{min-height:75px;resize:vertical}
+button.primary,.primary{background:var(--g);color:white;border:0;border-radius:10px;padding:12px 15px;font-weight:700}
+button.secondary{background:#edf4ee;color:#285b37;border:1px solid #d5e4d7;border-radius:10px;padding:11px 13px;font-weight:650}
+button:disabled{opacity:.45}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.muted{color:var(--muted);font-size:13px}
+.map{height:330px;border-radius:13px;position:relative;overflow:hidden;background:
+linear-gradient(28deg,transparent 46%,#d5d0a7 47%,#d5d0a7 49%,transparent 50%),
+linear-gradient(112deg,transparent 40%,#c6d9b7 41%,#c6d9b7 42%,transparent 43%),
+repeating-linear-gradient(0deg,#dce8cf 0 25px,#d3e2c6 26px 28px),
+repeating-linear-gradient(90deg,transparent 0 35px,#c9dbbd 36px 38px)}
+.fieldshape{position:absolute;inset:35px 48px 40px 40px;border:3px solid #397c42;background:#8fbf6a55;clip-path:polygon(12% 4%,89% 0,100% 68%,68% 100%,0 80%); }
+.point{position:absolute;border:0;border-radius:50%;width:34px;height:34px;background:#e99b27;color:#fff;font-weight:800;box-shadow:0 2px 5px #3337}
+.point.done{background:#24864a}.point.selected{outline:4px solid #ffffff;box-shadow:0 0 0 3px #245c36}
+.you{position:absolute;left:48%;top:52%;font-size:25px;filter:drop-shadow(0 1px 2px white)}
+.maplegend{position:absolute;bottom:8px;left:8px;background:#ffffffdf;padding:7px 9px;border-radius:8px;font-size:12px}
+.badge{display:inline-block;background:#fff1d8;color:#8a570e;border-radius:20px;padding:4px 9px;font-size:12px;font-weight:700}
+.badge.ok{background:#e0f3e5;color:#23663a}
+.pointrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:9px;border-bottom:1px solid var(--line)}th{color:var(--muted)}
+.hidden{display:none!important}.stat{display:flex;gap:8px}.stat div{background:#f1f6f0;padding:10px;border-radius:10px;flex:1}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+</style></head>
+<body>
+<header><h1>🌱 AgSolo Campo</h1><small>Investigação agrícola • versão web inicial</small></header>
+<nav>
+<button class="active" data-tab="inicio">Início</button><button data-tab="cadastro">Cadastros</button><button data-tab="campo">Mapa e pontos</button><button data-tab="historico">Histórico</button>
+</nav>
+<main>
+<section id="inicio" class="page active">
+<div class="card"><h2>Bem-vindo ao AgSolo Campo</h2><p>Organize produtores, fazendas e talhões. Crie pontos, registre pragas e consulte o histórico de cada visita.</p>
+<div class="stat"><div><b id="nprod">0</b><br><span class="muted">Produtores</span></div><div><b id="nfarm">0</b><br><span class="muted">Fazendas</span></div><div><b id="nfield">0</b><br><span class="muted">Talhões</span></div></div></div>
+<div class="card"><h3>Fluxo de trabalho</h3><p>1. Cadastre o produtor → 2. Cadastre a fazenda → 3. Cadastre o talhão → 4. Gere ou crie pontos → 5. Chegue a até 100 m → 6. Registre a avaliação.</p><p class="muted">Esta demonstração salva os dados neste navegador do aparelho.</p><button class="primary" onclick="tab('cadastro')">Começar cadastro</button></div>
+</section>
+<section id="cadastro" class="page">
+<div class="card"><h2>Cadastro hierárquico</h2>
+<label>Nome do produtor</label><input id="producerName" placeholder="Ex.: João da Silva">
+<button class="primary" style="margin-top:9px" onclick="addProducer()">Cadastrar produtor</button>
+<label>Produtor selecionado</label><select id="producerSelect" onchange="loadFarms()"></select>
+<label>Nome da fazenda</label><input id="farmName" placeholder="Ex.: Fazenda Santa Maria">
+<button class="secondary" style="margin-top:9px" onclick="addFarm()">Adicionar fazenda ao produtor</button>
+<label>Fazenda selecionada</label><select id="farmSelect" onchange="loadFields()"></select>
+<label>Nome do talhão</label><input id="fieldName" placeholder="Ex.: Talhão 01">
+<button class="secondary" style="margin-top:9px" onclick="addField()">Adicionar talhão à fazenda</button>
+</div>
+<div class="card"><h3>Estrutura cadastrada</h3><div id="tree" class="muted">Nenhum cadastro ainda.</div></div>
+</section>
+<section id="campo" class="page">
+<div class="card"><h2>Mapa do talhão</h2><label>Talhão em trabalho</label><select id="fieldSelect" onchange="renderMap()"></select>
+<div class="map" id="map"><div class="fieldshape"></div><span class="you">📍</span><div class="maplegend">🟠 Pendente &nbsp; 🟢 Avaliado &nbsp; 🔵 Sua localização (simulada)</div></div>
+<div class="row" style="margin-top:10px"><button class="secondary" onclick="addPoint()">＋ Criar ponto aqui</button><button class="secondary" onclick="generatePoints()">Gerar 5 pontos</button></div>
+<div class="row" style="margin-top:8px"><button class="secondary" onclick="getGPS()">📍 Usar meu GPS</button><button class="secondary" onclick="startTrack()">Iniciar rastreio</button></div>
+<p id="gpsmsg" class="muted">Mapa ilustrativo para demonstração. GPS real depende da permissão e de HTTPS.</p>
+</div>
+<div class="card"><h3>Pontos do talhão</h3><div id="pointlist" class="muted">Cadastre um talhão e crie pontos.</div></div>
+<div class="card" id="evalcard"><h3>Ficha do ponto</h3><p class="muted">Toque em um ponto no mapa ou na lista para abrir sua ficha.</p></div>
+</section>
+<section id="historico" class="page">
+<div class="card"><h2>Histórico de avaliações</h2><div id="history">Nenhuma avaliação registrada.</div></div>
+</section>
+</main>
+<div id="installbar" class="card hidden" style="position:sticky;bottom:8px;margin:8px 14px;z-index:5">
+  <b>Instalar AgSolo Campo</b>
+  <p class="muted">Adicione à tela inicial para abrir como aplicativo.</p>
+  <button class="primary" id="installbtn">Instalar</button>
+</div>
+<footer>AgSolo Campo • PWA inicial • dados salvos neste aparelho</footer>
+<script>
+const KEY='agsolo_demo_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"producers":[],"farms":[],"fields":[],"points":[],"evals":[],"tracks":[]}');
+let selectedPoint=null, gpsPos=null, tracking=false, watch=null;
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(db));refreshAll()};
+const el=id=>document.getElementById(id);
+function tab(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='campo')renderMap();if(id==='historico')renderHistory()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+function addProducer(){let n=el('producerName').value.trim();if(!n)return alert('Digite o nome do produtor.');db.producers.push({id:Date.now(),name:n});el('producerName').value='';save()}
+function addFarm(){let pid=+el('producerSelect').value,n=el('farmName').value.trim();if(!pid||!n)return alert('Selecione um produtor e informe a fazenda.');db.farms.push({id:Date.now(),producerId:pid,name:n});el('farmName').value='';save()}
+function addField(){let fid=+el('farmSelect').value,n=el('fieldName').value.trim();if(!fid||!n)return alert('Selecione uma fazenda e informe o talhão.');db.fields.push({id:Date.now(),farmId:fid,name:n});el('fieldName').value='';save()}
+function fillSelect(id,arr,placeholder){let s=el(id),old=s.value;s.innerHTML=`<option value="">${placeholder}</option>`+arr.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');if(arr.some(x=>String(x.id)===old))s.value=old}
+function loadFarms(){let pid=+el('producerSelect').value;fillSelect('farmSelect',db.farms.filter(x=>x.producerId===pid),'Selecione a fazenda');loadFields()}
+function loadFields(){let fid=+el('farmSelect').value;let arr=db.fields.filter(x=>x.farmId===fid);fillSelect('fieldSelect',arr,'Selecione o talhão');renderMap()}
+function currentField(){return +el('fieldSelect').value}
+function addPoint(lat=null,lon=null){let fid=currentField();if(!fid)return alert('Cadastre e selecione um talhão primeiro.');let ps=db.points.filter(x=>x.fieldId===fid),seq=ps.length+1;let x={id:Date.now()+Math.random(),fieldId:fid,seq,code:`TAL${fid}-P${String(seq).padStart(3,'0')}`,lat:lat??(-15.89+(Math.random()-.5)*.01),lon:lon??(-52.26+(Math.random()-.5)*.01),status:'Pendente'};db.points.push(x);save();selectPoint(x.id)}
+function generatePoints(){for(let i=0;i<5;i++)addPoint(-15.89+(Math.random()-.5)*.008,-52.26+(Math.random()-.5)*.008)}
+function renderMap(){let fid=currentField(),pts=db.points.filter(x=>x.fieldId===fid),m=el('map');m.querySelectorAll('.point').forEach(x=>x.remove());pts.forEach((p,i)=>{let b=document.createElement('button');b.className='point '+(p.status==='Avaliado'?'done':'')+(selectedPoint===p.id?' selected':'');b.textContent=p.seq;b.style.left=(15+(i%4)*21)+'%';b.style.top=(18+Math.floor(i/4)*28)+'%';b.onclick=()=>selectPoint(p.id);m.appendChild(b)});el('pointlist').innerHTML=pts.length?pts.map(p=>`<div class="pointrow"><div><b>${p.code}</b><br><span class="muted">${p.status} • ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}</span></div><button class="secondary" onclick="selectPoint(${p.id})">Abrir</button></div>`).join(''):'Nenhum ponto neste talhão.'}
+function selectPoint(id){selectedPoint=id;let p=db.points.find(x=>x.id===id);renderMap();let ev=db.evals.filter(x=>x.pointId===id);el('evalcard').innerHTML=`<h3>${p.code} <span class="badge ${p.status==='Avaliado'?'ok':''}">${p.status}</span></h3><p class="muted">ID ${p.id} • ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>${ev.length?ev.map(e=>`<p><b>Última avaliação:</b><br>Lagarta: ${e.lagarta} • Percevejo: ${e.percevejo} • Mosca-branca: ${e.mosca}<br>Observações: ${escapeHtml(e.obs||'—')}</p>`).join(''):'<p class="muted">Ainda sem avaliação.</p>'}<button class="primary" onclick="openEvaluation(${id})">Registrar avaliação</button>`}
+function openEvaluation(id){let p=db.points.find(x=>x.id===id),ordered=db.points.filter(x=>x.fieldId===p.fieldId&&x.status!=='Avaliado').sort((a,b)=>a.seq-b.seq),next=ordered[0];if(next?.id!==id)return alert('Este não é o próximo ponto. Conclua os pontos na sequência.');let d=gpsPos?distance(gpsPos.lat,gpsPos.lon,p.lat,p.lon):null;if(d===null)return alert('Para desbloquear o ponto, primeiro registre uma localização GPS válida.');if(!gpsPos.accuracy || gpsPos.accuracy>30)return alert(`GPS impreciso (±${Math.round(gpsPos.accuracy||999)} m). Aguarde precisão de até 30 m para validar a chegada.`);
+if(d>100)return alert(`Ponto bloqueado: você está a ${Math.round(d)} m. É necessário chegar a até 100 m.`);el('evalcard').innerHTML=`<h3>Avaliação ${p.code}</h3><span class="badge ok">Chegada GPS dentro de 100 m</span><p class="muted">Distância registrada: ${Math.round(d)} m • ${new Date().toLocaleString()}</p><label>Lagarta</label><input id="lag" type="number" min="0" value="0"><label>Percevejo</label><input id="per" type="number" min="0" value="0"><label>Mosca-branca</label><input id="mos" type="number" min="0" value="0"><label>Observações</label><textarea id="obs" placeholder="Descreva o que encontrou..."></textarea><label>Fotografia (opcional)</label><input id="photo" type="file" accept="image/*" capture="environment"><button class="primary" style="margin-top:12px" onclick="saveEval(${id})">Salvar avaliação e liberar próximo ponto</button>`}
+function saveEval(id){let p=db.points.find(x=>x.id===id),file=el('photo').files[0];let base={pointId:id,lagarta:+el('lag').value||0,percevejo:+el('per').value||0,mosca:+el('mos').value||0,obs:el('obs').value,date:new Date().toISOString(),gps:gpsPos};if(file){let r=new FileReader();r.onload=()=>{base.photo=r.result;db.evals.push(base);p.status='Avaliado';save();selectPoint(id)};r.readAsDataURL(file)}else{db.evals.push(base);p.status='Avaliado';save();selectPoint(id)}}
+function distance(a,b,c,d){const R=6371000,to=x=>x*Math.PI/180,dl=to(c-a),dn=to(d-b),h=Math.sin(dl/2)**2+Math.cos(to(a))*Math.cos(to(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function getGPS(){if(!navigator.geolocation)return alert('Este navegador não oferece GPS.');navigator.geolocation.getCurrentPosition(pos=>{gpsPos={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy};el('gpsmsg').textContent=`GPS: ${gpsPos.lat.toFixed(6)}, ${gpsPos.lon.toFixed(6)} • precisão ±${Math.round(gpsPos.accuracy)} m`;},e=>alert('Não foi possível obter GPS: '+e.message),{enableHighAccuracy:true,timeout:15000})}
+function startTrack(){if(!navigator.geolocation)return alert('GPS indisponível.');if(tracking){navigator.geolocation.clearWatch(watch);tracking=false;el('gpsmsg').textContent='Rastreio encerrado.';return}tracking=true;watch=navigator.geolocation.watchPosition(pos=>{gpsPos={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy};db.tracks.push({...gpsPos,date:new Date().toISOString()});localStorage.setItem(KEY,JSON.stringify(db));el('gpsmsg').textContent=`Rastreando • precisão ±${Math.round(gpsPos.accuracy)} m • ${db.tracks.length} registros`;},e=>alert(e.message),{enableHighAccuracy:true,maximumAge:3000});el('gpsmsg').textContent='Rastreio ativo. Mantenha esta página aberta; o navegador pode suspender o GPS com a tela bloqueada.'}
+function renderHistory(){el('history').innerHTML=db.evals.length?db.evals.slice().reverse().map(e=>{let p=db.points.find(x=>x.id===e.pointId);return `<div class="pointrow"><div><b>${p?.code||'Ponto'}</b><br><span class="muted">${new Date(e.date).toLocaleString()} • Lagarta ${e.lagarta}, percevejo ${e.percevejo}, mosca ${e.mosca}</span></div></div>`}).join(''):'Nenhuma avaliação registrada.'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function refreshAll(){fillSelect('producerSelect',db.producers,'Selecione o produtor');loadFarms();loadFields();el('nprod').textContent=db.producers.length;el('nfarm').textContent=db.farms.length;el('nfield').textContent=db.fields.length;el('tree').innerHTML=db.producers.map(p=>`<p><b>👤 ${escapeHtml(p.name)}</b>${db.farms.filter(f=>f.producerId===p.id).map(f=>`<br>　🏡 ${escapeHtml(f.name)}${db.fields.filter(t=>t.farmId===f.id).map(t=>`<br>　　🌱 ${escapeHtml(t.name)}`).join('')}`).join('')}</p>`).join('')||'Nenhum cadastro ainda.';renderHistory()}
+refreshAll();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); deferredInstall = e; el('installbar').classList.remove('hidden');
+});
+el('installbtn')?.addEventListener('click', async () => {
+  if (!deferredInstall) { alert('No Chrome: menu ⋮ > Adicionar à tela inicial ou Instalar aplicativo.'); return; }
+  deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; el('installbar').classList.add('hidden');
+});
+window.addEventListener('online',()=>{el('gpsmsg').textContent='Conexão disponível.'});
+window.addEventListener('offline',()=>{el('gpsmsg').textContent='Sem internet. Os registros locais continuam disponíveis.'});
+</script></body></html>
