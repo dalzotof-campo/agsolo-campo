@@ -10,6 +10,9 @@
 #map.map-fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;z-index:99999!important;border-radius:0!important;border:0!important}
 body.map-fullscreen-active{overflow:hidden!important}
 .map-fullscreen-exit{position:fixed;top:12px;right:12px;z-index:100001;background:#fff;color:#1d2a20;border:2px solid #247a43;border-radius:12px;padding:12px 16px;font-weight:800;box-shadow:0 2px 10px #0005}
+
+.agsolo-point-label{background:transparent!important;border:0!important}
+.agsolo-point-label span{display:block;min-width:34px;padding:5px 7px;border:2px solid #fff;border-radius:8px;background:#145ca8;color:#fff;font-size:13px;font-weight:800;line-height:1.1;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0009}
 </style></head><body>
 <header><h1>🌱 AgSolo Campo</h1><small>Investigação agrícola • módulo de mapas atualizado</small></header>
 <nav><button class="active" data-tab="inicio">Início</button><button data-tab="cadastro">Cadastros</button><button data-tab="campo">Mapa e pontos</button><button data-tab="historico">Histórico</button></nav>
@@ -73,7 +76,8 @@ renderMap=function(fit=false){
  if(window.pointLayer)window.pointLayer.clearLayers();
  window.pointLayer=L.layerGroup().addTo(map);
  db.points.filter(p=>p.fieldId===f?.id).forEach(p=>{
-   const marker=L.marker([p.lat,p.lon],{draggable:true}).bindPopup(`<b>${esc(p.code)}</b><br>${esc(p.status)}<br>Arraste para reposicionar`);
+   const pointIcon=L.divIcon({className:'agsolo-point-label',html:`<span>${esc(p.code)}</span>`,iconSize:null,iconAnchor:[18,14]});
+   const marker=L.marker([p.lat,p.lon],{draggable:true,icon:pointIcon}).bindPopup(`<b>${esc(p.code)}</b><br>${esc(p.status)}<br>Arraste para reposicionar`);
    marker.addTo(window.pointLayer);
    marker.on('click',()=>selectPoint(p.id));
    marker.on('dragend',ev=>{
@@ -223,4 +227,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('map')?.classLis
 refreshAll();
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=9').then(r=>r.update()).catch(()=>{});}</script></body></html>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=10').then(r=>r.update()).catch(()=>{});}</script></body></html>
