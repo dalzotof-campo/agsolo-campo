@@ -1,9 +1,1 @@
-{
-  "name": "AgSolo Campo",
-  "short_name": "AgSolo",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f3f6f2",
-  "theme_color": "#1f6b3b",
-  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
-}
+{"name":"AgSolo Campo","short_name":"AgSolo","start_url":"./","display":"standalone","background_color":"#f3f6f2","theme_color":"#1f6b3b","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml"}]}
