@@ -6,54 +6,71 @@
 
 #reportArea{display:none}.report-map{height:420px;border:1px solid #aaa;border-radius:8px;overflow:hidden}.danger{background:#fff0ef;color:#a32920;border:1px solid #efc5c1}.smallbtn{padding:7px 9px;font-size:12px}.trackbox{background:#eef6ff;border:1px solid #c8def7;border-radius:10px;padding:12px;margin-top:10px}.pointrow .rowbtns{display:flex;gap:5px;flex-wrap:wrap}.pointrow .rowbtns button{flex:0 0 auto}.vertex-help{font-size:12px;color:#526456;margin-top:7px}
 @media print{body{background:#fff}header,nav,main,footer,#reportControls{display:none!important}#reportArea{display:block!important;padding:18px;color:#111}#reportArea h1{font-size:20px}#reportArea .report-map{height:460px;break-inside:avoid}.report-table{width:100%;border-collapse:collapse}.report-table td,.report-table th{border:1px solid #999;padding:6px;font-size:11px}.report-table{table-layout:auto}.report-table th{background:#eef3ee}}
-
-#map.map-fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;z-index:99999!important;border-radius:0!important;border:0!important}
-body.map-fullscreen-active{overflow:hidden!important}
-.map-fullscreen-exit{position:fixed;top:12px;right:12px;z-index:100001;background:#fff;color:#1d2a20;border:2px solid #247a43;border-radius:12px;padding:12px 16px;font-weight:800;box-shadow:0 2px 10px #0005}
-
-.agsolo-point-label{background:transparent!important;border:0!important}
-.agsolo-point-label span{display:block;min-width:34px;padding:5px 7px;border:2px solid #fff;border-radius:8px;background:#145ca8;color:#fff;font-size:13px;font-weight:800;line-height:1.1;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0009}
 </style></head><body>
 <header><h1>🌱 AgSolo Campo</h1><small>Investigação agrícola • módulo de mapas atualizado</small></header>
 <nav><button class="active" data-tab="inicio">Início</button><button data-tab="cadastro">Cadastros</button><button data-tab="campo">Mapa e pontos</button><button data-tab="historico">Histórico</button></nav>
 <main>
 <section id="inicio" class="page active"><div class="card"><h2>Bem-vindo ao AgSolo Campo</h2><p>Cadastre produtores, fazendas e talhões. Importe limites, desenhe no mapa e organize os pontos de investigação.</p><div class="stat"><div><b id="nprod">0</b><br><span class="muted">Produtores</span></div><div><b id="nfarm">0</b><br><span class="muted">Fazendas</span></div><div><b id="nfield">0</b><br><span class="muted">Talhões</span></div></div></div><div class="card"><h3>Comece por aqui</h3><p>1. Cadastre produtor, fazenda e talhão. 2. Abra Mapa e pontos. 3. Importe KML/KMZ/SHP ou desenhe o perímetro. 4. Crie pontos de amostragem.</p><button class="primary" onclick="tab('cadastro')">Começar cadastro</button></div><div class="card"><b>Sobre o mapa</b><p class="muted">O fundo de satélite usa imagens Esri World Imagery, sem chave de API. Não é uma camada oficial do Google. É necessário internet para carregar as imagens.</p></div></section>
 <section id="cadastro" class="page"><div class="card"><h2>Cadastro hierárquico</h2><label>Nome do produtor</label><input id="producerName" placeholder="Ex.: João da Silva"><button class="primary" style="margin-top:9px" onclick="addProducer()">Cadastrar produtor</button><label>Produtor selecionado</label><select id="producerSelect" onchange="loadFarms()"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedProducer()">🗑 Apagar produtor selecionado</button><label>Nome da fazenda</label><input id="farmName" placeholder="Ex.: Fazenda Santa Maria"><button class="secondary" style="margin-top:9px" onclick="addFarm()">Adicionar fazenda</button><label>Fazenda selecionada</label><select id="farmSelect" onchange="loadFields()"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedFarm()">🗑 Apagar fazenda selecionada</button><label>Nome do talhão</label><input id="fieldName" placeholder="Ex.: Talhão 02"><button class="secondary" style="margin-top:9px" onclick="addField()">Adicionar talhão</button></div><div class="card"><h3>Estrutura cadastrada</h3><div id="tree" class="muted">Nenhum cadastro ainda.</div></div></section>
-<section id="campo" class="page"><div class="card"><h2>Mapa do talhão</h2><label>Talhão em trabalho</label><select id="fieldSelect" onchange="renderMap(true)"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedField()">🗑 Apagar talhão selecionado</button><div class="maptools"><button class="secondary" onclick="document.getElementById('geoFiles').click()">📂 Importar KML / KMZ / SHP</button><input class="hidden" id="geoFiles" type="file" accept=".kml,.kmz,.zip,.shp,.shx,.dbf,.prj,.cpg" multiple><button class="secondary" onclick="startDraw()">✏️ Iniciar desenho manual</button><button class="secondary" onclick="startBoundaryTrace()">🚜 Iniciar rastreio GPS</button><button class="secondary" onclick="useGPS()">📍 Minha localização</button></div>
-<div class="maptools"><button class="primary" id="finishBoundaryBtn" onclick="finishBoundary()" disabled>✓ Finalizar e salvar contorno</button><button class="secondary" id="cancelBoundaryBtn" onclick="cancelBoundary()" disabled>Cancelar desenho</button></div><div id="map" class="map"></div><div class="maptools"><button class="secondary" onclick="enablePointMode()">＋ Marcar ponto no mapa</button><button class="secondary" onclick="generateGrid()">Gerar grade de 5 pontos</button><button class="secondary" onclick="clearBoundary()">Apagar contorno</button></div><div id="mapmsg" class="note">Selecione um talhão. Inicie o desenho manual, o rastreio GPS ou importe um arquivo. Depois toque em “Finalizar e salvar contorno”.</div><div class="maptools"><button class="secondary" id="vertexEditBtn" onclick="toggleBoundaryEdit()">✏️ Editar vértices</button><button class="secondary" onclick="makeFieldReport()">📄 Relatório do talhão</button></div><p class="vertex-help">Para editar o contorno, toque em “Editar vértices”, arraste os cantos e salve.</p><div class="trackbox"><b>🚜 Navegação e trajeto</b><label>Ponto de destino</label><select id="navPointSelect"><option value="">Selecione um ponto</option></select><div class="maptools"><button class="secondary" onclick="toggleMapFullscreen()">⛶ Ver mapa em tela inteira</button><button class="primary" onclick="startNavigation()">▶ Iniciar navegação</button><button class="secondary" onclick="finishNavigation()">■ Encerrar e salvar</button><button class="secondary" onclick="makeTrackReport()">📄 Relatório de trajeto</button></div><div id="trackStatus" class="muted">A navegação só começa após sua confirmação. Mantenha o aplicativo aberto e a tela ativa durante o registro.</div></div></div><div class="card"><h3>Relatórios</h3><p class="muted">Gere o relatório de monitoramento de pragas e ervas, mantendo também o relatório de trajeto.</p><div class="maptools"><button class="primary" onclick="makePestWeedReport()">📄 Relatório de pragas e ervas</button><button class="secondary" onclick="makeTrackReport()">🚜 Relatório de trajeto</button></div></div><div class="card"><h3>Pontos do talhão</h3><div id="pointlist" class="muted">Cadastre um talhão e crie pontos.</div></div><div class="card" id="evalcard"><h3>Ficha do ponto</h3><p class="muted">Selecione um ponto na lista.</p></div></section>
+<section id="campo" class="page"><div class="card"><h2>Mapa do talhão</h2><label>Produtor</label><select id="mapProducerSelect" onchange="loadMapFarms()"></select><label>Fazenda</label><select id="mapFarmSelect" onchange="loadMapFields()"></select><label>Talhão em trabalho</label><select id="fieldSelect" onchange="renderMap(true)"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedField()">🗑 Apagar talhão selecionado</button><div class="maptools"><button class="secondary" onclick="document.getElementById('geoFiles').click()">📂 Importar KML / KMZ / SHP</button><input class="hidden" id="geoFiles" type="file" accept=".kml,.kmz,.zip,.shp,.shx,.dbf,.prj,.cpg" multiple><button class="secondary" onclick="startDraw()">✏️ Desenhar talhão</button><button class="secondary" onclick="useGPS()">📍 Minha localização</button></div><div id="map" class="map"></div><div class="maptools"><button class="secondary" onclick="enablePointMode()">＋ Marcar ponto no mapa</button><button class="secondary" onclick="generateGrid()">Gerar grade de 5 pontos</button><button class="secondary" onclick="clearBoundary()">Apagar contorno</button></div><div id="mapmsg" class="note">Selecione um talhão. Importe um arquivo ou desenhe o perímetro. Toque no mapa para marcar pontos depois de ativar essa opção.</div><div class="maptools"><button class="secondary" id="vertexEditBtn" onclick="toggleBoundaryEdit()">✏️ Editar vértices</button><button class="secondary" onclick="makeFieldReport()">📄 Relatório do talhão</button></div><p class="vertex-help">Para editar o contorno, toque em “Editar vértices”, arraste os cantos e salve.</p><div class="trackbox"><b>🚜 Navegação e trajeto</b><label>Ponto de destino</label><select id="navPointSelect"><option value="">Selecione um ponto</option></select><div class="maptools"><button class="primary" onclick="startNavigation()">▶ Iniciar navegação</button><button class="secondary" onclick="finishNavigation()">■ Encerrar e salvar</button><button class="secondary" onclick="makeTrackReport()">📄 Relatório de trajeto</button></div><div id="trackStatus" class="muted">A navegação só começa após sua confirmação. Mantenha o aplicativo aberto e a tela ativa durante o registro.</div></div></div><div class="card"><h3>Relatórios</h3><p class="muted">Gere o relatório de monitoramento de pragas e ervas, mantendo também o relatório de trajeto.</p><div class="maptools"><button class="primary" onclick="makePestWeedReport()">📄 Relatório de pragas e ervas</button><button class="secondary" onclick="makeTrackReport()">🚜 Relatório de trajeto</button></div></div><div class="card"><h3>Pontos do talhão</h3><div id="pointlist" class="muted">Cadastre um talhão e crie pontos.</div></div><div class="card" id="evalcard"><h3>Ficha do ponto</h3><p class="muted">Selecione um ponto na lista.</p></div></section>
 <section id="historico" class="page"><div class="card"><h2>Histórico de avaliações</h2><div id="history">Nenhuma avaliação registrada.</div></div></section>
 </main><section id="reportArea"><h1>AgSolo Campo — Relatório</h1><div id="reportMeta"></div><h3>Mapa em vista superior (2D)</h3><div id="reportMap" class="report-map"></div><div id="reportDetails"></div></section><footer>AgSolo Campo • dados locais neste aparelho • sincronização em nuvem será uma etapa futura</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script><script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
 <script>
 const KEY='agsolo_demo_v1';let db;try{db=JSON.parse(localStorage.getItem(KEY)||'{"producers":[],"farms":[],"fields":[],"points":[],"evals":[],"tracks":[]}')}catch(e){db={producers:[],farms:[],fields:[],points:[],evals:[],tracks:[]}};db.fields=db.fields||[];let map=null,baseLayers={},drawn=null,pointMode=false,selectedPoint=null,gpsPos=null;
-const el=id=>document.getElementById(id),save=()=>{localStorage.setItem(KEY,JSON.stringify(db));refreshAll()};function tab(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='campo')setTimeout(()=>{initMap();map.invalidateSize();renderMap(true)},150);if(id==='historico')renderHistory()}document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+const el=id=>document.getElementById(id),save=()=>{localStorage.setItem(KEY,JSON.stringify(db));refreshAll()};function tab(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='campo')setTimeout(()=>{fillSelect('mapProducerSelect',db.producers,'Selecione o produtor');loadMapFarms();initMap();map.invalidateSize();renderMap(true);startMapLocationFollow()},150);else stopMapLocationFollow();if(id==='historico')renderHistory()}document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
 function addProducer(){let n=el('producerName').value.trim();if(!n)return alert('Digite o nome do produtor.');db.producers.push({id:Date.now(),name:n});el('producerName').value='';save()}function addFarm(){let pid=+el('producerSelect').value,n=el('farmName').value.trim();if(!pid||!n)return alert('Selecione um produtor e informe a fazenda.');db.farms.push({id:Date.now(),producerId:pid,name:n});el('farmName').value='';save()}function addField(){let fid=+el('farmSelect').value,n=el('fieldName').value.trim();if(!fid||!n)return alert('Selecione uma fazenda e informe o talhão.');db.fields.push({id:Date.now(),farmId:fid,name:n,boundary:null});el('fieldName').value='';save()}
-function fillSelect(id,arr,ph){let s=el(id),old=s.value;s.innerHTML=`<option value="">${ph}</option>`+arr.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');if(arr.some(x=>String(x.id)===old))s.value=old}function loadFarms(){let pid=+el('producerSelect').value;fillSelect('farmSelect',db.farms.filter(x=>x.producerId===pid),'Selecione a fazenda');loadFields()}function loadFields(){let fid=+el('farmSelect').value;fillSelect('fieldSelect',db.fields.filter(x=>x.farmId===fid),'Selecione o talhão');renderMap(true)}function currentField(){return db.fields.find(x=>x.id===+el('fieldSelect').value)}
+function fillSelect(id,arr,ph){let s=el(id),old=s.value;s.innerHTML=`<option value="">${ph}</option>`+arr.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');if(arr.some(x=>String(x.id)===old))s.value=old}function loadFarms(){let pid=+el('producerSelect').value;fillSelect('farmSelect',db.farms.filter(x=>x.producerId===pid),'Selecione a fazenda');loadFields()}function loadFields(){/* A tela Cadastro mantém seus próprios seletores; o talhão de trabalho é escolhido em Mapa e pontos. */}function currentField(){return db.fields.find(x=>x.id===+el('fieldSelect').value)}
+function loadMapFarms(){
+ const pid=+el('mapProducerSelect').value;
+ fillSelect('mapFarmSelect',db.farms.filter(x=>x.producerId===pid),'Selecione a fazenda');
+ loadMapFields();
+}
+function loadMapFields(){
+ const fid=+el('mapFarmSelect').value;
+ fillSelect('fieldSelect',db.fields.filter(x=>x.farmId===fid),'Selecione o talhão');
+ renderMap(true);
+}
+
 function initMap(){if(map)return;map=L.map('map',{zoomControl:true}).setView([-15.8,-52.3],13);let sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri — Sources: Esri, Maxar, Earthstar Geographics'});let streets=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});sat.addTo(map);baseLayers={'Satélite':sat,'Ruas':streets};L.control.layers(baseLayers,null,{collapsed:true}).addTo(map);drawn=new L.FeatureGroup().addTo(map);map.addControl(new L.Control.Draw({draw:false,edit:{featureGroup:drawn,edit:true,remove:false}}));map.on(L.Draw.Event.CREATED,e=>{drawn.clearLayers();drawn.addLayer(e.layer);storeBoundary(e.layer.toGeoJSON().geometry);el('mapmsg').textContent='Contorno desenhado e salvo neste aparelho.'});map.on('click',e=>{if(pointMode){pointMode=false;addPoint(e.latlng.lat,e.latlng.lng);el('mapmsg').textContent='Ponto criado nas coordenadas escolhidas.'}})}
 function renderMap(fit=false){if(!map)return;let f=currentField();drawn?.clearLayers();if(f?.boundary){let l=L.geoJSON(f.boundary,{style:{color:'#ffe600',weight:3,fillColor:'#7dce50',fillOpacity:.18}}).addTo(drawn);if(fit)map.fitBounds(l.getBounds(),{padding:[25,25]})}let pts=db.points.filter(p=>p.fieldId===f?.id);if(window.pointLayer)map.removeLayer(window.pointLayer);window.pointLayer=L.layerGroup().addTo(map);pts.forEach(p=>{let marker=L.marker([p.lat,p.lon]).bindPopup(`<b>${p.code}</b><br>${p.status}`);marker.addTo(window.pointLayer).on('click',()=>selectPoint(p.id))});if(fit&&!f?.boundary&&!pts.length)map.setView([-15.8,-52.3],13);renderPointList()}
-let boundaryCreateMode=null,boundaryCoords=[],boundaryPreview=null,boundaryGpsWatch=null;
-function setBoundaryButtons(active){el('finishBoundaryBtn').disabled=!active;el('cancelBoundaryBtn').disabled=!active}
-function clearBoundaryPreview(){if(boundaryPreview&&map){map.removeLayer(boundaryPreview);boundaryPreview=null}}
-function redrawBoundaryPreview(){clearBoundaryPreview();if(!map||boundaryCoords.length===0)return;boundaryPreview=L.layerGroup().addTo(map);if(boundaryCoords.length>=2)L.polyline(boundaryCoords,{color:'#ff8c00',weight:4,dashArray:'7 6'}).addTo(boundaryPreview);boundaryCoords.forEach((c,i)=>L.circleMarker(c,{radius:5,color:'#fff',weight:2,fillColor:'#ff8c00',fillOpacity:1}).bindTooltip(String(i+1)).addTo(boundaryPreview))}
-function addBoundaryCoordinate(lat,lon){let c={lat,lon};if(boundaryCoords.length&&haversine(boundaryCoords[boundaryCoords.length-1],c)<2)return;boundaryCoords.push(c);redrawBoundaryPreview();el('mapmsg').textContent=`Contorno em criação: ${boundaryCoords.length} vértice(s). Ao terminar, toque em “Finalizar e salvar contorno”.`}
-function startDraw(){if(!currentField())return alert('Selecione um talhão primeiro.');initMap();cancelBoundary();boundaryCreateMode='manual';setBoundaryButtons(true);map.off('click',boundaryMapClick);map.on('click',boundaryMapClick);el('mapmsg').textContent='Toque no mapa para marcar cada canto do talhão. Quando terminar, toque em “Finalizar e salvar contorno”.'}
-function boundaryMapClick(e){if(boundaryCreateMode==='manual')addBoundaryCoordinate(e.latlng.lat,e.latlng.lng)}
-function startBoundaryTrace(){if(!currentField())return alert('Selecione um talhão primeiro.');if(!navigator.geolocation)return alert('GPS não disponível neste aparelho.');initMap();cancelBoundary();boundaryCreateMode='gps';setBoundaryButtons(true);el('mapmsg').textContent='Rastreio iniciado. Caminhe ou dirija pelo limite do talhão. Mantenha o aplicativo aberto e a tela ativa; toque em Finalizar quando completar o perímetro.';boundaryGpsWatch=navigator.geolocation.watchPosition(pos=>{if(boundaryCreateMode!=='gps')return;let acc=pos.coords.accuracy;if(acc>30){el('mapmsg').textContent=`Aguardando GPS mais preciso (agora ${Math.round(acc)} m).`;return}addBoundaryCoordinate(pos.coords.latitude,pos.coords.longitude);if(boundaryCoords.length===1)map.setView([pos.coords.latitude,pos.coords.longitude],18)},err=>{el('mapmsg').textContent='Falha no rastreio GPS: '+err.message},{enableHighAccuracy:true,maximumAge:1000,timeout:20000})}
-function finishBoundary(){if(!boundaryCreateMode)return alert('Inicie um desenho ou rastreio primeiro.');if(boundaryCoords.length<3)return alert('O contorno precisa de pelo menos 3 vértices. Continue o desenho ou rastreio.');if(boundaryGpsWatch!==null){navigator.geolocation.clearWatch(boundaryGpsWatch);boundaryGpsWatch=null}let ring=boundaryCoords.map(c=>[c.lon,c.lat]);ring.push(ring[0]);let geom={type:'Polygon',coordinates:[ring]};boundaryCreateMode=null;map.off('click',boundaryMapClick);clearBoundaryPreview();setBoundaryButtons(false);storeBoundary(geom);el('mapmsg').textContent='✓ Contorno finalizado e salvo neste aparelho. Agora você pode editar os vértices ou gerar os pontos amostrais.'}
-function cancelBoundary(){if(boundaryGpsWatch!==null&&navigator.geolocation){navigator.geolocation.clearWatch(boundaryGpsWatch);boundaryGpsWatch=null}if(map)map.off('click',boundaryMapClick);boundaryCreateMode=null;boundaryCoords=[];clearBoundaryPreview();setBoundaryButtons(false);if(el('mapmsg'))el('mapmsg').textContent='Criação do contorno cancelada.'}
-function storeBoundary(geom){let f=currentField();if(!f)return;f.boundary=geom;localStorage.setItem(KEY,JSON.stringify(db));renderMap(true)}function clearBoundary(){let f=currentField();if(!f)return alert('Selecione um talhão.');if(!confirm('Apagar o contorno deste talhão?'))return;f.boundary=null;save();renderMap(false)}
+function startDraw(){if(!currentField())return alert('Selecione um talhão primeiro.');initMap();let d=new L.Draw.Polygon(map,{allowIntersection:false,showArea:true,shapeOptions:{color:'#ffe600',weight:3}});d.enable();el('mapmsg').textContent='Toque nos cantos do talhão no mapa; para terminar, toque duas vezes no último canto.'}function storeBoundary(geom){let f=currentField();if(!f)return;f.boundary=geom;save();renderMap(true)}function clearBoundary(){let f=currentField();if(!f)return alert('Selecione um talhão.');if(!confirm('Apagar o contorno deste talhão?'))return;f.boundary=null;save();renderMap(false)}
 function enablePointMode(){if(!currentField())return alert('Selecione um talhão primeiro.');pointMode=true;el('mapmsg').textContent='Agora toque no local do mapa onde deseja criar o ponto.'}function addPoint(lat,lon){let f=currentField();if(!f)return alert('Selecione um talhão primeiro.');let ps=db.points.filter(x=>x.fieldId===f.id),seq=ps.length+1;let p={id:Date.now()+Math.random(),fieldId:f.id,seq,code:`${f.name.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,5)||'TAL'}-P${String(seq).padStart(3,'0')}`,lat,lon,status:'Pendente'};db.points.push(p);save();selectPoint(p.id)}
 function inside(pt,ring){let x=pt[0],y=pt[1],ins=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){let xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1],inter=((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi+1e-20)+xi);if(inter)ins=!ins}return ins}function generateGrid(){let f=currentField();if(!f)return alert('Selecione um talhão.');if(!f.boundary)return alert('Antes de gerar pontos, importe ou desenhe o contorno do talhão.');let geom=f.boundary,poly=geom.type==='Polygon'?geom.coordinates[0]:geom.type==='MultiPolygon'?geom.coordinates[0][0]:null;if(!poly)return alert('O arquivo precisa conter um polígono de talhão.');let xs=poly.map(c=>c[0]),ys=poly.map(c=>c[1]),minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys),created=0;for(let r=1;r<=2;r++)for(let c=1;c<=3;c++){let x=minx+(maxx-minx)*c/4,y=miny+(maxy-miny)*r/3;if(inside([x,y],poly)){addPoint(y,x);created++}}el('mapmsg').textContent=`Grade criada: ${created} ponto(s) dentro do contorno.`}
 function renderPointList(){let f=currentField(),pts=db.points.filter(x=>x.fieldId===f?.id);el('pointlist').innerHTML=pts.length?pts.map(p=>`<div class="pointrow"><div><b>${esc(p.code)}</b><br><span class="muted">${p.status} • ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</span></div><button class="secondary" onclick="selectPoint(${p.id})">Abrir</button></div>`).join(''):'Nenhum ponto neste talhão.'}
-function selectPoint(id){selectedPoint=id;let p=db.points.find(x=>x.id===id);if(!p)return;let ev=db.evals.filter(x=>x.pointId===id);el('evalcard').innerHTML=`<h3>${esc(p.code)} — ${p.status}</h3><p class="muted">${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>${ev.length?`<p>Última avaliação: lagartas ${ev.at(-1).lagarta}, percevejos ${ev.at(-1).percevejo}, mosca-branca ${ev.at(-1).mosca}<br>${esc(ev.at(-1).obs||'')}</p>`:'<p class="muted">Ainda sem avaliação.</p>'}<button class="primary" onclick="evaluatePoint(${id})">Registrar avaliação</button>`;if(map)map.setView([p.lat,p.lon],17)}function evaluatePoint(id){let p=db.points.find(x=>x.id===id);el('evalcard').innerHTML=`<h3>Avaliação ${esc(p.code)}</h3><div class="row"><div><label>Lagartas</label><input id="lag" type="number" min="0" value="0"></div><div><label>Percevejos</label><input id="per" type="number" min="0" value="0"></div></div><div class="row"><div><label>Mosca-branca</label><input id="mos" type="number" min="0" value="0"></div><div><label>Besouros</label><input id="bes" type="number" min="0" value="0"></div></div><div class="row"><div><label>Ervas de folha estreita</label><input id="fe" type="number" min="0" value="0"></div><div><label>Ervas de folha larga</label><input id="fl" type="number" min="0" value="0"></div></div><label>Outras pragas/ervas</label><input id="outros" placeholder="Nome e quantidade"><label>Observações</label><textarea id="obs"></textarea><button class="primary" style="margin-top:10px" onclick="saveEval(${id})">Salvar avaliação</button>`}function saveEval(id){let p=db.points.find(x=>x.id===id);db.evals.push({pointId:id,lagarta:+el('lag').value||0,percevejo:+el('per').value||0,mosca:+el('mos').value||0,besouro:+el('bes').value||0,folhaEstreita:+el('fe').value||0,folhaLarga:+el('fl').value||0,outros:el('outros').value,obs:el('obs').value,date:new Date().toISOString()});p.status='Avaliado';save();selectPoint(id)}
-function useGPS(){if(!navigator.geolocation)return alert('GPS não disponível.');navigator.geolocation.getCurrentPosition(pos=>{gpsPos={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy};initMap();map.setView([gpsPos.lat,gpsPos.lon],18);L.circleMarker([gpsPos.lat,gpsPos.lon],{radius:8,color:'#1476d4'}).addTo(map).bindPopup('Sua localização');el('mapmsg').textContent=`GPS: precisão aproximada de ${Math.round(gpsPos.accuracy)} metros.`},e=>alert('Não consegui acessar o GPS: '+e.message),{enableHighAccuracy:true,timeout:20000})}
+function hasArrivedAtPoint(id){return (db.tracks||[]).some(t=>t.pointId===id&&t.arrival);}
+function selectPoint(id){selectedPoint=id;let p=db.points.find(x=>x.id===id);if(!p)return;let ev=db.evals.filter(x=>x.pointId===id);el('evalcard').innerHTML=`<h3>${esc(p.code)} — ${p.status}</h3><p class="muted">${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}</p>${ev.length?`<p>Última avaliação: lagartas ${ev.at(-1).lagarta}, percevejos ${ev.at(-1).percevejo}, mosca-branca ${ev.at(-1).mosca}<br>${esc(ev.at(-1).obs||'')}</p>`:'<p class="muted">Ainda sem avaliação.</p>'}${hasArrivedAtPoint(id)?`<button class="primary" onclick="evaluatePoint(${id})">Registrar avaliação</button>`:`<p class="note">A avaliação será liberada quando o GPS registrar sua chegada a até 100 metros deste ponto, com precisão de até 30 metros. Inicie a navegação até ele.</p>`}`;if(map)map.setView([p.lat,p.lon],17)}function evaluatePoint(id){let p=db.points.find(x=>x.id===id);if(!hasArrivedAtPoint(id)){alert('A avaliação só é liberada após a chegada confirmada pelo GPS, dentro de 100 metros do ponto.');return;}el('evalcard').innerHTML=`<h3>Avaliação ${esc(p.code)}</h3><div class="row"><div><label>Lagartas</label><input id="lag" type="number" min="0" value="0"></div><div><label>Percevejos</label><input id="per" type="number" min="0" value="0"></div></div><div class="row"><div><label>Mosca-branca</label><input id="mos" type="number" min="0" value="0"></div><div><label>Besouros</label><input id="bes" type="number" min="0" value="0"></div></div><div class="row"><div><label>Ervas de folha estreita</label><input id="fe" type="number" min="0" value="0"></div><div><label>Ervas de folha larga</label><input id="fl" type="number" min="0" value="0"></div></div><label>Outras pragas/ervas</label><input id="outros" placeholder="Nome e quantidade"><label>Observações</label><textarea id="obs"></textarea><button class="primary" style="margin-top:10px" onclick="saveEval(${id})">Salvar avaliação</button>`}function saveEval(id){let p=db.points.find(x=>x.id===id);if(!hasArrivedAtPoint(id)){alert('Não é possível salvar: a chegada ao ponto ainda não foi confirmada pelo GPS.');return;}db.evals.push({pointId:id,lagarta:+el('lag').value||0,percevejo:+el('per').value||0,mosca:+el('mos').value||0,besouro:+el('bes').value||0,folhaEstreita:+el('fe').value||0,folhaLarga:+el('fl').value||0,outros:el('outros').value,obs:el('obs').value,date:new Date().toISOString()});p.status='Avaliado';save();selectPoint(id)}
+
+let mapGpsWatch=null,mapGpsMarker=null,mapGpsAccuracy=null;
+function stopMapLocationFollow(){
+ if(mapGpsWatch!==null && navigator.geolocation){navigator.geolocation.clearWatch(mapGpsWatch);mapGpsWatch=null;}
+}
+function startMapLocationFollow(){
+ if(!navigator.geolocation || mapGpsWatch!==null)return;
+ el('mapmsg').textContent='Buscando sua localização pelo GPS. Permita o acesso quando o celular perguntar.';
+ mapGpsWatch=navigator.geolocation.watchPosition(pos=>{
+  if(!map || !el('campo').classList.contains('active'))return;
+  const lat=pos.coords.latitude,lon=pos.coords.longitude,acc=pos.coords.accuracy;
+  gpsPos={lat,lon,accuracy:acc};
+  if(!mapGpsMarker)mapGpsMarker=L.circleMarker([lat,lon],{radius:8,color:'#1476d4',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindPopup('Sua localização');
+  else mapGpsMarker.setLatLng([lat,lon]);
+  if(!mapGpsAccuracy)mapGpsAccuracy=L.circle([lat,lon],{radius:acc,color:'#1476d4',weight:1,fillOpacity:.08}).addTo(map);
+  else {mapGpsAccuracy.setLatLng([lat,lon]);mapGpsAccuracy.setRadius(acc);}
+  map.setView([lat,lon],Math.max(map.getZoom(),16),{animate:true});
+  el('mapmsg').textContent=`Sua localização está sendo acompanhada pelo GPS. Precisão aproximada: ${Math.round(acc)} metros.`;
+ },err=>{
+  el('mapmsg').textContent='Não foi possível acompanhar sua localização: '+err.message+'. Confira a permissão de localização do celular.';
+  stopMapLocationFollow();
+ },{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
+}
+function useGPS(){if(!navigator.geolocation)return alert('GPS não disponível.');navigator.geolocation.getCurrentPosition(pos=>{gpsPos={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy};initMap();map.setView([gpsPos.lat,gpsPos.lon],18);if(mapGpsMarker)mapGpsMarker.setLatLng([gpsPos.lat,gpsPos.lon]);else mapGpsMarker=L.circleMarker([gpsPos.lat,gpsPos.lon],{radius:8,color:'#1476d4'}).addTo(map).bindPopup('Sua localização');el('mapmsg').textContent=`GPS: precisão aproximada de ${Math.round(gpsPos.accuracy)} metros.`},e=>alert('Não consegui acessar o GPS: '+e.message),{enableHighAccuracy:true,timeout:20000})}
 function parseKml(txt){let xml=new DOMParser().parseFromString(txt,'text/xml'),polys=[...xml.getElementsByTagName('Polygon')],features=[];for(let p of polys){let c=p.getElementsByTagName('coordinates')[0]?.textContent.trim();if(!c)continue;let ring=c.split(/\s+/).map(s=>s.split(',').slice(0,2).map(Number));if(ring.length>=4)features.push({type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[ring]}})}if(!features.length){let c=xml.getElementsByTagName('coordinates')[0]?.textContent.trim();if(c){let pts=c.split(/\s+/).map(s=>s.split(',').slice(0,2).map(Number));if(pts.length>=4)features.push({type:'Feature',properties:{},geometry:{type:'Polygon',coordinates:[pts]}})}}return {type:'FeatureCollection',features}}
 async function importFiles(files){let f=currentField();if(!f)return alert('Selecione um talhão antes de importar.');try{let arr=[...files],geo=null,kml=arr.find(x=>x.name.toLowerCase().endsWith('.kml')),kmz=arr.find(x=>x.name.toLowerCase().endsWith('.kmz')),zip=arr.find(x=>x.name.toLowerCase().endsWith('.zip')),shpfile=arr.find(x=>x.name.toLowerCase().endsWith('.shp'));if(kml)geo=parseKml(await kml.text());else if(kmz||zip){let z=await JSZip.loadAsync(await (kmz||zip).arrayBuffer()),entry=Object.values(z.files).find(x=>x.name.toLowerCase().endsWith('.kml'));if(entry)geo=parseKml(await entry.async('text'));else geo=await shp(Buffer.from(await (kmz||zip).arrayBuffer()))}else if(shpfile){let ab=await shpfile.arrayBuffer();geo=await shp(ab)}else if(shpfile){let z=new JSZip();for(let x of arr)z.file(x.name,await x.arrayBuffer());let packed=await z.generateAsync({type:'arraybuffer'});geo=await shp(packed);}if(!geo)throw new Error('Não encontrei KML, KMZ ou SHP válido. Para Shapefile, selecione juntos .shp, .shx e .dbf (e .prj, se houver), ou envie um ZIP.');let features=geo.type==='FeatureCollection'?geo.features:geo.type==='Feature'? [geo]:[];let polygon=features.find(x=>['Polygon','MultiPolygon'].includes(x.geometry?.type));if(!polygon)throw new Error('O arquivo não contém um polígono de talhão.');storeBoundary(polygon.geometry);el('mapmsg').textContent='Limite importado com sucesso. Confira o contorno no mapa.'}catch(e){alert('Falha ao importar: '+e.message)}el('geoFiles').value=''}el('geoFiles').addEventListener('change',e=>importFiles(e.target.files));
-function renderHistory(){el('history').innerHTML=db.evals.length?db.evals.slice().reverse().map(e=>{let p=db.points.find(x=>x.id===e.pointId);return `<div class="pointrow"><div><b>${esc(p?.code||'Ponto')}</b><br><span class="muted">${new Date(e.date).toLocaleString()} • Lagartas ${e.lagarta}, percevejos ${e.percevejo}, mosca ${e.mosca}</span></div></div>`}).join(''):'Nenhuma avaliação registrada.'}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function refreshAll(){fillSelect('producerSelect',db.producers,'Selecione o produtor');loadFarms();loadFields();el('nprod').textContent=db.producers.length;el('nfarm').textContent=db.farms.length;el('nfield').textContent=db.fields.length;el('tree').innerHTML=db.producers.map(p=>`<p><b>👤 ${esc(p.name)}</b>${db.farms.filter(f=>f.producerId===p.id).map(f=>`<br>　🏡 ${esc(f.name)}${db.fields.filter(t=>t.farmId===f.id).map(t=>`<br>　　🌱 ${esc(t.name)}`).join('')}`).join('')}</p>`).join('')||'Nenhum cadastro ainda.';renderHistory()}refreshAll();
+function renderHistory(){el('history').innerHTML=db.evals.length?db.evals.slice().reverse().map(e=>{let p=db.points.find(x=>x.id===e.pointId);return `<div class="pointrow"><div><b>${esc(p?.code||'Ponto')}</b><br><span class="muted">${new Date(e.date).toLocaleString()} • Lagartas ${e.lagarta}, percevejos ${e.percevejo}, mosca ${e.mosca}</span></div></div>`}).join(''):'Nenhuma avaliação registrada.'}function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function refreshAll(){fillSelect('producerSelect',db.producers,'Selecione o produtor');fillSelect('mapProducerSelect',db.producers,'Selecione o produtor');loadMapFarms();loadFarms();el('nprod').textContent=db.producers.length;el('nfarm').textContent=db.farms.length;el('nfield').textContent=db.fields.length;el('tree').innerHTML=db.producers.map(p=>`<p><b>👤 ${esc(p.name)}</b>${db.farms.filter(f=>f.producerId===p.id).map(f=>`<br>　🏡 ${esc(f.name)}${db.fields.filter(t=>t.farmId===f.id).map(t=>`<br>　　🌱 ${esc(t.name)}`).join('')}`).join('')}</p>`).join('')||'Nenhum cadastro ainda.';renderHistory()}refreshAll();
 </script>
 <script>
 // AgSolo Campo v3 — edição, exclusão, navegação e relatórios
-let boundaryEditor=null, activeTrack=null, gpsWatch=null, reportMap=null, liveGpsMarker=null, liveGpsAccuracy=null;
+let boundaryEditor=null, activeTrack=null, gpsWatch=null, reportMap=null;
 function cascadeDeleteProducer(id){let farms=db.farms.filter(f=>f.producerId===id),farmIds=farms.map(f=>f.id),fields=db.fields.filter(t=>farmIds.includes(t.farmId)),fieldIds=fields.map(t=>t.id),pointIds=db.points.filter(p=>fieldIds.includes(p.fieldId)).map(p=>p.id);db.evals=db.evals.filter(e=>!pointIds.includes(e.pointId));db.tracks=db.tracks.filter(t=>!pointIds.includes(t.pointId));db.points=db.points.filter(p=>!fieldIds.includes(p.fieldId));db.fields=db.fields.filter(t=>!farmIds.includes(t.farmId));db.farms=db.farms.filter(f=>f.producerId!==id);db.producers=db.producers.filter(p=>p.id!==id);save()}
 function deleteFarm(id){let fs=db.fields.filter(t=>t.farmId===id),ids=fs.map(t=>t.id),pids=db.points.filter(p=>ids.includes(p.fieldId)).map(p=>p.id);db.evals=db.evals.filter(e=>!pids.includes(e.pointId));db.tracks=db.tracks.filter(t=>!pids.includes(t.pointId));db.points=db.points.filter(p=>!ids.includes(p.fieldId));db.fields=db.fields.filter(t=>t.farmId!==id);db.farms=db.farms.filter(f=>f.id!==id);save()}
 function deleteField(id){let pids=db.points.filter(p=>p.fieldId===id).map(p=>p.id);db.evals=db.evals.filter(e=>!pids.includes(e.pointId));db.tracks=db.tracks.filter(t=>!pids.includes(t.pointId));db.points=db.points.filter(p=>p.fieldId!==id);db.fields=db.fields.filter(t=>t.id!==id);save();renderMap(false)}
@@ -69,15 +86,14 @@ const baseRenderMap=renderMap;
 renderMap=function(fit=false){baseRenderMap(fit);if(!map)return;let f=currentField();if(window.pointLayer)window.pointLayer.clearLayers();db.points.filter(p=>p.fieldId===f?.id).forEach(p=>{let m=L.marker([p.lat,p.lon],{draggable:true}).bindPopup(`<b>${esc(p.code)}</b><br>${esc(p.status)}<br>Arraste para reposicionar`);m.addTo(window.pointLayer);m.on('click',()=>selectPoint(p.id));m.on('dragend',e=>{let ll=e.target.getLatLng();p.lat=ll.lat;p.lon=ll.lng;save();el('mapmsg').textContent=`${p.code} reposicionado e salvo.`;renderPointList()})});};
 const priorRenderMapV4=renderMap;
 renderMap=function(fit=false){
- if(vertexEditMode){if(editingBoundaryLayer?.editing)editingBoundaryLayer.editing.disable();vertexEditMode=false;editingBoundaryLayer=null;el('vertexEditBtn').textContent='✏️ Editar vértices'}
+ if(vertexEditMode){vertexEditMode=false;clearVertexHandles()}
  priorRenderMapV4(fit);
  if(!map)return;
  const f=currentField();
  if(window.pointLayer)window.pointLayer.clearLayers();
  window.pointLayer=L.layerGroup().addTo(map);
  db.points.filter(p=>p.fieldId===f?.id).forEach(p=>{
-   const pointIcon=L.divIcon({className:'agsolo-point-label',html:`<span>${esc(p.code)}</span>`,iconSize:null,iconAnchor:[18,14]});
-   const marker=L.marker([p.lat,p.lon],{draggable:true,icon:pointIcon}).bindPopup(`<b>${esc(p.code)}</b><br>${esc(p.status)}<br>Arraste para reposicionar`);
+   const marker=L.marker([p.lat,p.lon],{draggable:true}).bindPopup(`<b>${esc(p.code)}</b><br>${esc(p.status)}<br>Arraste para reposicionar`);
    marker.addTo(window.pointLayer);
    marker.on('click',()=>selectPoint(p.id));
    marker.on('dragend',ev=>{
@@ -88,111 +104,45 @@ renderMap=function(fit=false){
    });
  });
 };
-let vertexEditMode=false, editingBoundaryLayer=null;
+let vertexEditMode=false, vertexHandles=[];
+function clearVertexHandles(){vertexHandles.forEach(m=>map&&map.removeLayer(m));vertexHandles=[]}
 function toggleBoundaryEdit(){
- let f=currentField();if(!f?.boundary)return alert('Este talhão ainda não tem contorno salvo.');
+ let f=currentField(); if(!f?.boundary)return alert('Este talhão ainda não tem contorno.');
  initMap();
  if(vertexEditMode){
-  if(editingBoundaryLayer?.editing)editingBoundaryLayer.editing.disable();
-  vertexEditMode=false;editingBoundaryLayer=null;
-  let feature=drawn.toGeoJSON().features.find(x=>['Polygon','MultiPolygon'].includes(x.geometry?.type));
-  if(feature)f.boundary=feature.geometry;
-  localStorage.setItem(KEY,JSON.stringify(db));
-  el('vertexEditBtn').textContent='✏️ Editar vértices';
-  el('mapmsg').textContent='✓ Edição concluída. Contorno atualizado e salvo.';
-  renderMap(false);return;
+   vertexEditMode=false; clearVertexHandles();
+   el('vertexEditBtn').textContent='✏️ Editar vértices';
+   el('mapmsg').textContent='Edição concluída. Os vértices foram salvos automaticamente.';
+   renderMap(false); return;
  }
- renderMap(true);
- drawn.eachLayer(l=>{if(l instanceof L.Polygon)editingBoundaryLayer=l});
- if(!editingBoundaryLayer)return alert('Não encontrei o polígono no mapa. Importe ou desenhe novamente o contorno.');
- if(!editingBoundaryLayer.editing)return alert('A ferramenta de edição do mapa não carregou. Verifique a conexão e recarregue a página.');
- editingBoundaryLayer.editing.enable();
- vertexEditMode=true;el('vertexEditBtn').textContent='💾 Salvar edição';
- el('mapmsg').textContent='Arraste os pequenos pontos nos vértices do polígono. Toque em “Salvar edição” quando terminar.';
+ let layer; drawn.eachLayer(l=>{if(l instanceof L.Polygon)layer=l});
+ if(!layer){renderMap(true);drawn.eachLayer(l=>{if(l instanceof L.Polygon)layer=l})}
+ if(!layer)return alert('Não encontrei o polígono. Importe ou desenhe novamente o contorno.');
+ let rings=layer.getLatLngs(); if(!rings?.[0]||rings[0].length<4)return alert('O contorno não possui vértices suficientes.');
+ vertexEditMode=true; el('vertexEditBtn').textContent='💾 Concluir edição';
+ const ring=rings[0].slice(0,-1);
+ ring.forEach((ll,index)=>{
+   let handle=L.marker(ll,{draggable:true,autoPan:true,icon:L.divIcon({className:'agsolo-vertex',html:'<span></span>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(map);
+   handle.on('drag',ev=>{
+     const next=ev.target.getLatLng(), updated=layer.getLatLngs(), r=updated[0];
+     r[index]=next; r[r.length-1]=r[0]; layer.setLatLngs(updated);
+   });
+   handle.on('dragend',()=>{
+     f.boundary=layer.toGeoJSON().geometry;
+     localStorage.setItem(KEY,JSON.stringify(db));
+     el('mapmsg').textContent='Vértice movido e salvo. Continue ajustando ou toque em Concluir edição.';
+   });
+   vertexHandles.push(handle);
+ });
+ el('mapmsg').textContent='Arraste os círculos brancos nos cantos do contorno. Cada movimento é salvo automaticamente.';
 }
 function deleteSelectedProducer(){let id=+el('producerSelect').value;if(!id)return alert('Selecione um produtor.');if(confirm('Apagar este produtor e TODAS as fazendas, talhões, pontos, avaliações e trajetos vinculados?'))cascadeDeleteProducer(id)}
 function deleteSelectedFarm(){let id=+el('farmSelect').value;if(!id)return alert('Selecione uma fazenda.');if(confirm('Apagar esta fazenda e seus talhões, pontos, avaliações e trajetos?'))deleteFarm(id)}
 function deleteSelectedField(){let id=+el('fieldSelect').value;if(!id)return alert('Selecione um talhão.');if(confirm('Apagar este talhão e todos os pontos, avaliações e trajetos vinculados?'))deleteField(id)}
 function haversine(a,b){const R=6371000,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(v))}
-let mapFullscreenButton=null;
-function toggleMapFullscreen(){
- const mapEl=el('map');
- if(!mapEl)return;
- const entering=!mapEl.classList.contains('map-fullscreen');
- if(entering){
-   mapEl.classList.add('map-fullscreen');
-   document.body.classList.add('map-fullscreen-active');
-   if(!mapFullscreenButton){
-     mapFullscreenButton=document.createElement('button');
-     mapFullscreenButton.className='map-fullscreen-exit';
-     mapFullscreenButton.textContent='✕ Voltar';
-     mapFullscreenButton.onclick=toggleMapFullscreen;
-     document.body.appendChild(mapFullscreenButton);
-   }
-   mapFullscreenButton.style.display='block';
-   setTimeout(()=>{if(map){map.invalidateSize();const pos=liveGpsMarker?.getLatLng();if(pos)map.panTo(pos,{animate:false});}},150);
- }else{
-   mapEl.classList.remove('map-fullscreen');
-   document.body.classList.remove('map-fullscreen-active');
-   if(mapFullscreenButton)mapFullscreenButton.style.display='none';
-   setTimeout(()=>{if(map)map.invalidateSize();},150);
- }
-}
-function startNavigation(){
- let p=db.points.find(x=>x.id===+el('navPointSelect').value);
- if(!p)return alert('Selecione o ponto de destino.');
- if(!navigator.geolocation)return alert('GPS não disponível neste aparelho.');
- if(activeTrack)return alert('Já existe uma navegação em andamento.');
- if(!confirm(`Confirma iniciar a navegação até ${p.code}? O GPS acompanhará sua posição no mapa enquanto o aplicativo estiver aberto.`))return;
- activeTrack={id:Date.now(),pointId:p.id,pointCode:p.code,fieldId:p.fieldId,startedAt:new Date().toISOString(),endedAt:null,coords:[],arrival:null,distanceM:0};
- db.tracks.push(activeTrack);
- localStorage.setItem(KEY,JSON.stringify(db));
- el('trackStatus').textContent='Navegação iniciada. Procurando sinal GPS…';
- if(!map)initMap();
- gpsWatch=navigator.geolocation.watchPosition(pos=>{
-   if(!activeTrack)return;
-   const c={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy,time:new Date(pos.timestamp).toISOString()};
-   // Update the live location marker on every GPS reading.
-   if(!liveGpsMarker){
-     liveGpsMarker=L.circleMarker([c.lat,c.lon],{radius:9,color:'#ffffff',weight:3,fillColor:'#0878e8',fillOpacity:1}).addTo(map).bindPopup('Sua posição atual');
-   }else{
-     liveGpsMarker.setLatLng([c.lat,c.lon]);
-   }
-   // Keep the map following the user while navigation is active.
-   const mapCenter=map.getCenter();
-   const centerGap=haversine({lat:mapCenter.lat,lon:mapCenter.lng},c);
-   if(centerGap>12)map.panTo([c.lat,c.lon],{animate:false});
-   if(c.accuracy<=30){
-     if(activeTrack.coords.length){
-       const prev=activeTrack.coords[activeTrack.coords.length-1];
-       const step=haversine(prev,c);
-       if(step>2)activeTrack.distanceM+=step;
-     }
-     activeTrack.coords.push(c);
-   }
-   const dest=db.points.find(x=>x.id===activeTrack.pointId);
-   const dist=dest?haversine(c,{lat:dest.lat,lon:dest.lon}):null;
-   if(dist!==null&&dist<=100&&c.accuracy<=30&&!activeTrack.arrival){
-     activeTrack.arrival={...c,distanceM:Math.round(dist)};
-   }
-   el('trackStatus').textContent=`GPS ativo • precisão ${Math.round(c.accuracy)} m • ${dist===null?'':Math.round(dist)+' m do destino'} • ${activeTrack.coords.length} posições válidas`;
-   localStorage.setItem(KEY,JSON.stringify(db));
- },err=>{
-   el('trackStatus').textContent='Erro no GPS: '+err.message+'. Confira a permissão de localização do navegador e o GPS do celular.';
- },{enableHighAccuracy:true,maximumAge:1000,timeout:20000});
-}
-function finishNavigation(){if(!activeTrack){alert('Não há navegação em andamento.');return}if(gpsWatch!==null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;activeTrack.endedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));let t=activeTrack;activeTrack=null;el('trackStatus').textContent=`Trajeto salvo: ${t.coords.length} posições GPS válidas, ${Math.round(t.distanceM)} m registrados.`;refreshAll()}
-function makeTrackReport(){
- const f=currentField();
- if(activeTrack)return alert('A navegação ainda está em andamento. Encerre e salve primeiro.');
- const t=db.tracks.filter(x=>x.fieldId===f?.id&&x.endedAt&&Array.isArray(x.coords)&&x.coords.length>=3&&(x.distanceM||0)>=20).slice(-1)[0];
- if(!t)return alert('Não há trajeto concluído com deslocamento real registrado neste talhão. Inicie a navegação, percorra o caminho e depois encerre e salve.');
- const coords=t.coords||[];
- const first=coords[0],last=coords[coords.length-1];
- if(!first||!last||haversine(first,last)<10)return alert('O registro não comprova deslocamento suficiente. Nenhum relatório de trajeto será gerado.');
- let dest=db.points.find(p=>p.id===t.pointId);
- openPrintReport(`Relatório de trajeto — ${t.pointCode}`,`<p><b>Destino:</b> ${esc(t.pointCode)} | <b>Início:</b> ${new Date(t.startedAt).toLocaleString()} | <b>Fim:</b> ${new Date(t.endedAt).toLocaleString()}</p><p><b>Distância registrada:</b> ${Math.round(t.distanceM||0)} m | <b>Posições GPS válidas:</b> ${coords.length} | <b>Chegada dentro de 100 m:</b> ${t.arrival?'Sim':'Não registrada'}</p><p><b>Coordenadas do destino:</b> ${dest?dest.lat.toFixed(6)+', '+dest.lon.toFixed(6):'—'}</p>`,coords.map(c=>[c.lat,c.lon]));
-}
+function startNavigation(){let p=db.points.find(x=>x.id===+el('navPointSelect').value);if(!p)return alert('Selecione o ponto de destino.');if(!navigator.geolocation)return alert('GPS não disponível neste aparelho.');if(activeTrack)return alert('Já existe uma navegação em andamento.');if(!confirm(`Confirma iniciar a navegação até ${p.code}? O GPS registrará o trajeto enquanto o aplicativo estiver aberto.`))return;activeTrack={id:Date.now(),pointId:p.id,pointCode:p.code,fieldId:p.fieldId,startedAt:new Date().toISOString(),endedAt:null,coords:[],arrival:null,distanceM:0};db.tracks.push(activeTrack);save();el('trackStatus').textContent='Navegação iniciada. Aguardando posição GPS…';gpsWatch=navigator.geolocation.watchPosition(pos=>{let c={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy,time:new Date(pos.timestamp).toISOString()};if(activeTrack.coords.length){let prev=activeTrack.coords[activeTrack.coords.length-1];if(haversine(prev,c)>2)activeTrack.distanceM+=haversine(prev,c)}activeTrack.coords.push(c);let dest=db.points.find(x=>x.id===activeTrack.pointId),dist=dest?haversine(c,{lat:dest.lat,lon:dest.lon}):null;if(dist!==null&&dist<=100&&c.accuracy<=30&&!activeTrack.arrival){activeTrack.arrival={...c,distanceM:Math.round(dist)};el('trackStatus').textContent=`Chegada registrada em ${dest.code}. Distância do ponto: ${Math.round(dist)} m.`}else el('trackStatus').textContent=`GPS ativo • ${Math.round(c.accuracy)} m de precisão • ${dist===null?'':Math.round(dist)+' m do destino'} • ${activeTrack.coords.length} posições`;localStorage.setItem(KEY,JSON.stringify(db));},err=>{el('trackStatus').textContent='Erro no GPS: '+err.message},{enableHighAccuracy:true,maximumAge:3000,timeout:20000})}
+function finishNavigation(){if(!activeTrack){alert('Não há navegação em andamento.');return}if(gpsWatch!==null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;activeTrack.endedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));let t=activeTrack;activeTrack=null;el('trackStatus').textContent=`Trajeto salvo: ${t.coords.length} posições, ${Math.round(t.distanceM)} m percorridos.`;refreshAll()}
+function makeTrackReport(){let t=activeTrack||db.tracks.filter(x=>x.fieldId===currentField()?.id).slice(-1)[0];if(!t)return alert('Ainda não há trajeto registrado neste talhão.');let dest=db.points.find(p=>p.id===t.pointId),coords=t.coords||[];openPrintReport(`Relatório de trajeto — ${t.pointCode}`,`<p><b>Destino:</b> ${esc(t.pointCode)} | <b>Início:</b> ${new Date(t.startedAt).toLocaleString()} | <b>Fim:</b> ${t.endedAt?new Date(t.endedAt).toLocaleString():'Em andamento'}</p><p><b>Distância registrada:</b> ${Math.round(t.distanceM||0)} m | <b>Posições GPS:</b> ${coords.length} | <b>Chegada dentro de 100 m:</b> ${t.arrival?'Sim':'Não registrada'}</p><p><b>Coordenadas do destino:</b> ${dest?dest.lat.toFixed(6)+', '+dest.lon.toFixed(6):'—'}</p>` ,coords.map(c=>[c.lat,c.lon]))}
 function makePestWeedReport(){
  const f=currentField();if(!f)return alert('Selecione um talhão.');
  const pts=db.points.filter(p=>p.fieldId===f.id).sort((a,b)=>a.seq-b.seq);
@@ -222,9 +172,8 @@ function openPrintReport(title,details,coords=[],boundary=null){
 }
 // after printing, restore screen
 window.addEventListener('afterprint',()=>{el('reportArea').style.display='none';if(reportMap){reportMap.remove();reportMap=null}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('map')?.classList.contains('map-fullscreen'))toggleMapFullscreen()});
 // Ensure fresh selectors and counts
 refreshAll();
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=10').then(r=>r.update()).catch(()=>{});}</script></body></html>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=5').then(r=>r.update()).catch(()=>{});}</script></body></html>
