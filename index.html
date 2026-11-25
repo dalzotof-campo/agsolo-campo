@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f6b3b"><meta name="description" content="AgSolo Campo — investigação agrícola e mapas de talhões"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><title>AgSolo Campo</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f6b3b"><meta name="description" content="AgSolo Campo — investigação agrícola e mapas de talhões"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><title>AgSolo Campo v5</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <style>
 :root{--g:#247a43;--bg:#f3f6f2;--ink:#1d2a20;--muted:#647267;--line:#dce5dc}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}header{background:#1f6b3b;color:white;padding:17px 16px;position:sticky;top:0;z-index:1000}header h1{font-size:21px;margin:0}header small{opacity:.9}nav{display:flex;gap:6px;padding:10px;background:white;position:sticky;top:62px;z-index:999;overflow:auto}nav button{border:0;border-radius:22px;padding:10px 13px;background:#edf3ed;color:#31523a;white-space:nowrap;font-weight:600}nav button.active{background:var(--g);color:white}main{padding:14px;max-width:950px;margin:auto}.page{display:none}.page.active{display:block}.card{background:white;border:1px solid var(--line);border-radius:15px;padding:15px;margin:0 0 13px;box-shadow:0 2px 8px #1b4b2410}h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid #cbd8cc;border-radius:10px;background:white;font:inherit;color:var(--ink)}textarea{min-height:75px}.primary,.secondary{border:0;border-radius:10px;padding:12px 14px;font-weight:700}.primary{background:var(--g);color:white}.secondary{background:#edf4ee;color:#285b37;border:1px solid #d5e4d7}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.muted{color:var(--muted);font-size:13px}.stat{display:flex;gap:8px}.stat div{background:#f1f6f0;padding:10px;border-radius:10px;flex:1}.mapwrap{position:relative}.map{height: min(62vh,520px);min-height:360px;border-radius:13px;overflow:hidden;border:1px solid #cbd8cc}.maptools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.maptools button{flex:1;min-width:130px}.note{background:#f1f6f0;border-radius:10px;padding:10px;margin-top:10px;font-size:13px}.pointrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}.hidden{display:none!important}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:8px;border-bottom:1px solid var(--line)}footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}.leaflet-container{font:inherit}.leaflet-control-attribution{font-size:10px}.agsolo-vertex span{display:block;width:18px;height:18px;border:3px solid #176b36;background:#fff;border-radius:50%;box-shadow:0 1px 5px #0008}.report-map,.leaflet-container{transform:none!important;perspective:none!important;filter:none!important}.report-photo img,.photo-frame img{width:100%;height:100%;object-fit:contain;display:block}
@@ -7,22 +7,19 @@
 #reportArea{display:none}.report-map{height:420px;border:1px solid #aaa;border-radius:8px;overflow:hidden}.danger{background:#fff0ef;color:#a32920;border:1px solid #efc5c1}.smallbtn{padding:7px 9px;font-size:12px}.trackbox{background:#eef6ff;border:1px solid #c8def7;border-radius:10px;padding:12px;margin-top:10px}.pointrow .rowbtns{display:flex;gap:5px;flex-wrap:wrap}.pointrow .rowbtns button{flex:0 0 auto}.vertex-help{font-size:12px;color:#526456;margin-top:7px}
 @media print{body{background:#fff}header,nav,main,footer,#reportControls{display:none!important}#reportArea{display:block!important;padding:18px;color:#111}#reportArea h1{font-size:20px}#reportArea .report-map{height:460px;break-inside:avoid}.report-table{width:100%;border-collapse:collapse}.report-table td,.report-table th{border:1px solid #999;padding:6px;font-size:11px}.report-table{table-layout:auto}.report-table th{background:#eef3ee}}
 
-.app-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.app-logo{display:block;width:min(260px,68vw);height:auto;max-height:78px;object-fit:contain;background:#f7f5ef;border-radius:8px;padding:3px}
-.app-header small{font-size:12px}
-.report-brand{text-align:center;margin:0 0 10px}
-.report-brand img{width:260px;max-width:65%;height:auto;object-fit:contain}
-@media print{.report-brand img{width:230px;max-width:45%}}
+#map.map-fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;z-index:99999!important;border-radius:0!important;border:0!important}
+body.map-fullscreen-active{overflow:hidden!important}
+.map-fullscreen-exit{position:fixed;top:12px;right:12px;z-index:100001;background:#fff;color:#1d2a20;border:2px solid #247a43;border-radius:12px;padding:12px 16px;font-weight:800;box-shadow:0 2px 10px #0005}
 </style></head><body>
-<header class="app-header"><img class="app-logo" src="./logo-agsolo.png" alt="AG Solo"><small>AgSolo Campo • investigação agrícola</small></header>
+<header><h1>🌱 AgSolo Campo</h1><small>Investigação agrícola • módulo de mapas atualizado</small></header>
 <nav><button class="active" data-tab="inicio">Início</button><button data-tab="cadastro">Cadastros</button><button data-tab="campo">Mapa e pontos</button><button data-tab="historico">Histórico</button></nav>
 <main>
 <section id="inicio" class="page active"><div class="card"><h2>Bem-vindo ao AgSolo Campo</h2><p>Cadastre produtores, fazendas e talhões. Importe limites, desenhe no mapa e organize os pontos de investigação.</p><div class="stat"><div><b id="nprod">0</b><br><span class="muted">Produtores</span></div><div><b id="nfarm">0</b><br><span class="muted">Fazendas</span></div><div><b id="nfield">0</b><br><span class="muted">Talhões</span></div></div></div><div class="card"><h3>Comece por aqui</h3><p>1. Cadastre produtor, fazenda e talhão. 2. Abra Mapa e pontos. 3. Importe KML/KMZ/SHP ou desenhe o perímetro. 4. Crie pontos de amostragem.</p><button class="primary" onclick="tab('cadastro')">Começar cadastro</button></div><div class="card"><b>Sobre o mapa</b><p class="muted">O fundo de satélite usa imagens Esri World Imagery, sem chave de API. Não é uma camada oficial do Google. É necessário internet para carregar as imagens.</p></div></section>
 <section id="cadastro" class="page"><div class="card"><h2>Cadastro hierárquico</h2><label>Nome do produtor</label><input id="producerName" placeholder="Ex.: João da Silva"><button class="primary" style="margin-top:9px" onclick="addProducer()">Cadastrar produtor</button><label>Produtor selecionado</label><select id="producerSelect" onchange="loadFarms()"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedProducer()">🗑 Apagar produtor selecionado</button><label>Nome da fazenda</label><input id="farmName" placeholder="Ex.: Fazenda Santa Maria"><button class="secondary" style="margin-top:9px" onclick="addFarm()">Adicionar fazenda</button><label>Fazenda selecionada</label><select id="farmSelect" onchange="loadFields()"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedFarm()">🗑 Apagar fazenda selecionada</button><label>Nome do talhão</label><input id="fieldName" placeholder="Ex.: Talhão 02"><button class="secondary" style="margin-top:9px" onclick="addField()">Adicionar talhão</button></div><div class="card"><h3>Estrutura cadastrada</h3><div id="tree" class="muted">Nenhum cadastro ainda.</div></div></section>
 <section id="campo" class="page"><div class="card"><h2>Mapa do talhão</h2><label>Talhão em trabalho</label><select id="fieldSelect" onchange="renderMap(true)"></select><button class="danger smallbtn" style="margin-top:6px" onclick="deleteSelectedField()">🗑 Apagar talhão selecionado</button><div class="maptools"><button class="secondary" onclick="document.getElementById('geoFiles').click()">📂 Importar KML / KMZ / SHP</button><input class="hidden" id="geoFiles" type="file" accept=".kml,.kmz,.zip,.shp,.shx,.dbf,.prj,.cpg" multiple><button class="secondary" onclick="startDraw()">✏️ Iniciar desenho manual</button><button class="secondary" onclick="startBoundaryTrace()">🚜 Iniciar rastreio GPS</button><button class="secondary" onclick="useGPS()">📍 Minha localização</button></div>
-<div class="maptools"><button class="primary" id="finishBoundaryBtn" onclick="finishBoundary()" disabled>✓ Finalizar e salvar contorno</button><button class="secondary" id="cancelBoundaryBtn" onclick="cancelBoundary()" disabled>Cancelar desenho</button></div><div id="map" class="map"></div><div class="maptools"><button class="secondary" onclick="enablePointMode()">＋ Marcar ponto no mapa</button><button class="secondary" onclick="generateGrid()">Gerar grade de 5 pontos</button><button class="secondary" onclick="clearBoundary()">Apagar contorno</button></div><div id="mapmsg" class="note">Selecione um talhão. Inicie o desenho manual, o rastreio GPS ou importe um arquivo. Depois toque em “Finalizar e salvar contorno”.</div><div class="maptools"><button class="secondary" id="vertexEditBtn" onclick="toggleBoundaryEdit()">✏️ Editar vértices</button><button class="secondary" onclick="makeFieldReport()">📄 Relatório do talhão</button></div><p class="vertex-help">Para editar o contorno, toque em “Editar vértices”, arraste os cantos e salve.</p><div class="trackbox"><b>🚜 Navegação e trajeto</b><label>Ponto de destino</label><select id="navPointSelect"><option value="">Selecione um ponto</option></select><div class="maptools"><button class="primary" onclick="startNavigation()">▶ Iniciar navegação</button><button class="secondary" onclick="finishNavigation()">■ Encerrar e salvar</button><button class="secondary" onclick="makeTrackReport()">📄 Relatório de trajeto</button></div><div id="trackStatus" class="muted">A navegação só começa após sua confirmação. Mantenha o aplicativo aberto e a tela ativa durante o registro.</div></div></div><div class="card"><h3>Relatórios</h3><p class="muted">Gere o relatório de monitoramento de pragas e ervas, mantendo também o relatório de trajeto.</p><div class="maptools"><button class="primary" onclick="makePestWeedReport()">📄 Relatório de pragas e ervas</button><button class="secondary" onclick="makeTrackReport()">🚜 Relatório de trajeto</button></div></div><div class="card"><h3>Pontos do talhão</h3><div id="pointlist" class="muted">Cadastre um talhão e crie pontos.</div></div><div class="card" id="evalcard"><h3>Ficha do ponto</h3><p class="muted">Selecione um ponto na lista.</p></div></section>
+<div class="maptools"><button class="primary" id="finishBoundaryBtn" onclick="finishBoundary()" disabled>✓ Finalizar e salvar contorno</button><button class="secondary" id="cancelBoundaryBtn" onclick="cancelBoundary()" disabled>Cancelar desenho</button></div><div id="map" class="map"></div><div class="maptools"><button class="secondary" onclick="enablePointMode()">＋ Marcar ponto no mapa</button><button class="secondary" onclick="generateGrid()">Gerar grade de 5 pontos</button><button class="secondary" onclick="clearBoundary()">Apagar contorno</button></div><div id="mapmsg" class="note">Selecione um talhão. Inicie o desenho manual, o rastreio GPS ou importe um arquivo. Depois toque em “Finalizar e salvar contorno”.</div><div class="maptools"><button class="secondary" id="vertexEditBtn" onclick="toggleBoundaryEdit()">✏️ Editar vértices</button><button class="secondary" onclick="makeFieldReport()">📄 Relatório do talhão</button></div><p class="vertex-help">Para editar o contorno, toque em “Editar vértices”, arraste os cantos e salve.</p><div class="trackbox"><b>🚜 Navegação e trajeto</b><label>Ponto de destino</label><select id="navPointSelect"><option value="">Selecione um ponto</option></select><div class="maptools"><button class="secondary" onclick="toggleMapFullscreen()">⛶ Ver mapa em tela inteira</button><button class="primary" onclick="startNavigation()">▶ Iniciar navegação</button><button class="secondary" onclick="finishNavigation()">■ Encerrar e salvar</button><button class="secondary" onclick="makeTrackReport()">📄 Relatório de trajeto</button></div><div id="trackStatus" class="muted">A navegação só começa após sua confirmação. Mantenha o aplicativo aberto e a tela ativa durante o registro.</div></div></div><div class="card"><h3>Relatórios</h3><p class="muted">Gere o relatório de monitoramento de pragas e ervas, mantendo também o relatório de trajeto.</p><div class="maptools"><button class="primary" onclick="makePestWeedReport()">📄 Relatório de pragas e ervas</button><button class="secondary" onclick="makeTrackReport()">🚜 Relatório de trajeto</button></div></div><div class="card"><h3>Pontos do talhão</h3><div id="pointlist" class="muted">Cadastre um talhão e crie pontos.</div></div><div class="card" id="evalcard"><h3>Ficha do ponto</h3><p class="muted">Selecione um ponto na lista.</p></div></section>
 <section id="historico" class="page"><div class="card"><h2>Histórico de avaliações</h2><div id="history">Nenhuma avaliação registrada.</div></div></section>
-</main><section id="reportArea"><div class="report-brand"><img src="./logo-agsolo.png" alt="AG Solo"></div><h1>AgSolo Campo — Relatório</h1><div id="reportMeta"></div><h3>Mapa em vista superior (2D)</h3><div id="reportMap" class="report-map"></div><div id="reportDetails"></div></section><footer>AgSolo Campo • dados locais neste aparelho • sincronização em nuvem será uma etapa futura</footer>
+</main><section id="reportArea"><h1>AgSolo Campo — Relatório</h1><div id="reportMeta"></div><h3>Mapa em vista superior (2D)</h3><div id="reportMap" class="report-map"></div><div id="reportDetails"></div></section><footer>AgSolo Campo • dados locais neste aparelho • sincronização em nuvem será uma etapa futura</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script><script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
 <script>
 const KEY='agsolo_demo_v1';let db;try{db=JSON.parse(localStorage.getItem(KEY)||'{"producers":[],"farms":[],"fields":[],"points":[],"evals":[],"tracks":[]}')}catch(e){db={producers:[],farms:[],fields:[],points:[],evals:[],tracks:[]}};db.fields=db.fields||[];let map=null,baseLayers={},drawn=null,pointMode=false,selectedPoint=null,gpsPos=null;
@@ -53,7 +50,7 @@ function renderHistory(){el('history').innerHTML=db.evals.length?db.evals.slice(
 </script>
 <script>
 // AgSolo Campo v3 — edição, exclusão, navegação e relatórios
-let boundaryEditor=null, activeTrack=null, gpsWatch=null, reportMap=null;
+let boundaryEditor=null, activeTrack=null, gpsWatch=null, reportMap=null, liveGpsMarker=null, liveGpsAccuracy=null;
 function cascadeDeleteProducer(id){let farms=db.farms.filter(f=>f.producerId===id),farmIds=farms.map(f=>f.id),fields=db.fields.filter(t=>farmIds.includes(t.farmId)),fieldIds=fields.map(t=>t.id),pointIds=db.points.filter(p=>fieldIds.includes(p.fieldId)).map(p=>p.id);db.evals=db.evals.filter(e=>!pointIds.includes(e.pointId));db.tracks=db.tracks.filter(t=>!pointIds.includes(t.pointId));db.points=db.points.filter(p=>!fieldIds.includes(p.fieldId));db.fields=db.fields.filter(t=>!farmIds.includes(t.farmId));db.farms=db.farms.filter(f=>f.producerId!==id);db.producers=db.producers.filter(p=>p.id!==id);save()}
 function deleteFarm(id){let fs=db.fields.filter(t=>t.farmId===id),ids=fs.map(t=>t.id),pids=db.points.filter(p=>ids.includes(p.fieldId)).map(p=>p.id);db.evals=db.evals.filter(e=>!pids.includes(e.pointId));db.tracks=db.tracks.filter(t=>!pids.includes(t.pointId));db.points=db.points.filter(p=>!ids.includes(p.fieldId));db.fields=db.fields.filter(t=>t.farmId!==id);db.farms=db.farms.filter(f=>f.id!==id);save()}
 function deleteField(id){let pids=db.points.filter(p=>p.fieldId===id).map(p=>p.id);db.evals=db.evals.filter(e=>!pids.includes(e.pointId));db.tracks=db.tracks.filter(t=>!pids.includes(t.pointId));db.points=db.points.filter(p=>p.fieldId!==id);db.fields=db.fields.filter(t=>t.id!==id);save();renderMap(false)}
@@ -113,9 +110,85 @@ function deleteSelectedProducer(){let id=+el('producerSelect').value;if(!id)retu
 function deleteSelectedFarm(){let id=+el('farmSelect').value;if(!id)return alert('Selecione uma fazenda.');if(confirm('Apagar esta fazenda e seus talhões, pontos, avaliações e trajetos?'))deleteFarm(id)}
 function deleteSelectedField(){let id=+el('fieldSelect').value;if(!id)return alert('Selecione um talhão.');if(confirm('Apagar este talhão e todos os pontos, avaliações e trajetos vinculados?'))deleteField(id)}
 function haversine(a,b){const R=6371000,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(v))}
-function startNavigation(){let p=db.points.find(x=>x.id===+el('navPointSelect').value);if(!p)return alert('Selecione o ponto de destino.');if(!navigator.geolocation)return alert('GPS não disponível neste aparelho.');if(activeTrack)return alert('Já existe uma navegação em andamento.');if(!confirm(`Confirma iniciar a navegação até ${p.code}? O GPS registrará o trajeto enquanto o aplicativo estiver aberto.`))return;activeTrack={id:Date.now(),pointId:p.id,pointCode:p.code,fieldId:p.fieldId,startedAt:new Date().toISOString(),endedAt:null,coords:[],arrival:null,distanceM:0};db.tracks.push(activeTrack);save();el('trackStatus').textContent='Navegação iniciada. Aguardando posição GPS…';gpsWatch=navigator.geolocation.watchPosition(pos=>{let c={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy,time:new Date(pos.timestamp).toISOString()};if(activeTrack.coords.length){let prev=activeTrack.coords[activeTrack.coords.length-1];if(haversine(prev,c)>2)activeTrack.distanceM+=haversine(prev,c)}activeTrack.coords.push(c);let dest=db.points.find(x=>x.id===activeTrack.pointId),dist=dest?haversine(c,{lat:dest.lat,lon:dest.lon}):null;if(dist!==null&&dist<=100&&c.accuracy<=30&&!activeTrack.arrival){activeTrack.arrival={...c,distanceM:Math.round(dist)};el('trackStatus').textContent=`Chegada registrada em ${dest.code}. Distância do ponto: ${Math.round(dist)} m.`}else el('trackStatus').textContent=`GPS ativo • ${Math.round(c.accuracy)} m de precisão • ${dist===null?'':Math.round(dist)+' m do destino'} • ${activeTrack.coords.length} posições`;localStorage.setItem(KEY,JSON.stringify(db));},err=>{el('trackStatus').textContent='Erro no GPS: '+err.message},{enableHighAccuracy:true,maximumAge:3000,timeout:20000})}
-function finishNavigation(){if(!activeTrack){alert('Não há navegação em andamento.');return}if(gpsWatch!==null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;activeTrack.endedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));let t=activeTrack;activeTrack=null;el('trackStatus').textContent=`Trajeto salvo: ${t.coords.length} posições, ${Math.round(t.distanceM)} m percorridos.`;refreshAll()}
-function makeTrackReport(){let t=activeTrack||db.tracks.filter(x=>x.fieldId===currentField()?.id).slice(-1)[0];if(!t)return alert('Ainda não há trajeto registrado neste talhão.');let dest=db.points.find(p=>p.id===t.pointId),coords=t.coords||[];openPrintReport(`Relatório de trajeto — ${t.pointCode}`,`<p><b>Destino:</b> ${esc(t.pointCode)} | <b>Início:</b> ${new Date(t.startedAt).toLocaleString()} | <b>Fim:</b> ${t.endedAt?new Date(t.endedAt).toLocaleString():'Em andamento'}</p><p><b>Distância registrada:</b> ${Math.round(t.distanceM||0)} m | <b>Posições GPS:</b> ${coords.length} | <b>Chegada dentro de 100 m:</b> ${t.arrival?'Sim':'Não registrada'}</p><p><b>Coordenadas do destino:</b> ${dest?dest.lat.toFixed(6)+', '+dest.lon.toFixed(6):'—'}</p>` ,coords.map(c=>[c.lat,c.lon]))}
+let mapFullscreenButton=null;
+function toggleMapFullscreen(){
+ const mapEl=el('map');
+ if(!mapEl)return;
+ const entering=!mapEl.classList.contains('map-fullscreen');
+ if(entering){
+   mapEl.classList.add('map-fullscreen');
+   document.body.classList.add('map-fullscreen-active');
+   if(!mapFullscreenButton){
+     mapFullscreenButton=document.createElement('button');
+     mapFullscreenButton.className='map-fullscreen-exit';
+     mapFullscreenButton.textContent='✕ Voltar';
+     mapFullscreenButton.onclick=toggleMapFullscreen;
+     document.body.appendChild(mapFullscreenButton);
+   }
+   mapFullscreenButton.style.display='block';
+   setTimeout(()=>{if(map){map.invalidateSize();const pos=liveGpsMarker?.getLatLng();if(pos)map.panTo(pos,{animate:false});}},150);
+ }else{
+   mapEl.classList.remove('map-fullscreen');
+   document.body.classList.remove('map-fullscreen-active');
+   if(mapFullscreenButton)mapFullscreenButton.style.display='none';
+   setTimeout(()=>{if(map)map.invalidateSize();},150);
+ }
+}
+function startNavigation(){
+ let p=db.points.find(x=>x.id===+el('navPointSelect').value);
+ if(!p)return alert('Selecione o ponto de destino.');
+ if(!navigator.geolocation)return alert('GPS não disponível neste aparelho.');
+ if(activeTrack)return alert('Já existe uma navegação em andamento.');
+ if(!confirm(`Confirma iniciar a navegação até ${p.code}? O GPS acompanhará sua posição no mapa enquanto o aplicativo estiver aberto.`))return;
+ activeTrack={id:Date.now(),pointId:p.id,pointCode:p.code,fieldId:p.fieldId,startedAt:new Date().toISOString(),endedAt:null,coords:[],arrival:null,distanceM:0};
+ db.tracks.push(activeTrack);
+ localStorage.setItem(KEY,JSON.stringify(db));
+ el('trackStatus').textContent='Navegação iniciada. Procurando sinal GPS…';
+ if(!map)initMap();
+ gpsWatch=navigator.geolocation.watchPosition(pos=>{
+   if(!activeTrack)return;
+   const c={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy,time:new Date(pos.timestamp).toISOString()};
+   // Update the live location marker on every GPS reading.
+   if(!liveGpsMarker){
+     liveGpsMarker=L.circleMarker([c.lat,c.lon],{radius:9,color:'#ffffff',weight:3,fillColor:'#0878e8',fillOpacity:1}).addTo(map).bindPopup('Sua posição atual');
+   }else{
+     liveGpsMarker.setLatLng([c.lat,c.lon]);
+   }
+   // Keep the map following the user while navigation is active.
+   const mapCenter=map.getCenter();
+   const centerGap=haversine({lat:mapCenter.lat,lon:mapCenter.lng},c);
+   if(centerGap>12)map.panTo([c.lat,c.lon],{animate:false});
+   if(c.accuracy<=30){
+     if(activeTrack.coords.length){
+       const prev=activeTrack.coords[activeTrack.coords.length-1];
+       const step=haversine(prev,c);
+       if(step>2)activeTrack.distanceM+=step;
+     }
+     activeTrack.coords.push(c);
+   }
+   const dest=db.points.find(x=>x.id===activeTrack.pointId);
+   const dist=dest?haversine(c,{lat:dest.lat,lon:dest.lon}):null;
+   if(dist!==null&&dist<=100&&c.accuracy<=30&&!activeTrack.arrival){
+     activeTrack.arrival={...c,distanceM:Math.round(dist)};
+   }
+   el('trackStatus').textContent=`GPS ativo • precisão ${Math.round(c.accuracy)} m • ${dist===null?'':Math.round(dist)+' m do destino'} • ${activeTrack.coords.length} posições válidas`;
+   localStorage.setItem(KEY,JSON.stringify(db));
+ },err=>{
+   el('trackStatus').textContent='Erro no GPS: '+err.message+'. Confira a permissão de localização do navegador e o GPS do celular.';
+ },{enableHighAccuracy:true,maximumAge:1000,timeout:20000});
+}
+function finishNavigation(){if(!activeTrack){alert('Não há navegação em andamento.');return}if(gpsWatch!==null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;activeTrack.endedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));let t=activeTrack;activeTrack=null;el('trackStatus').textContent=`Trajeto salvo: ${t.coords.length} posições GPS válidas, ${Math.round(t.distanceM)} m registrados.`;refreshAll()}
+function makeTrackReport(){
+ const f=currentField();
+ if(activeTrack)return alert('A navegação ainda está em andamento. Encerre e salve primeiro.');
+ const t=db.tracks.filter(x=>x.fieldId===f?.id&&x.endedAt&&Array.isArray(x.coords)&&x.coords.length>=3&&(x.distanceM||0)>=20).slice(-1)[0];
+ if(!t)return alert('Não há trajeto concluído com deslocamento real registrado neste talhão. Inicie a navegação, percorra o caminho e depois encerre e salve.');
+ const coords=t.coords||[];
+ const first=coords[0],last=coords[coords.length-1];
+ if(!first||!last||haversine(first,last)<10)return alert('O registro não comprova deslocamento suficiente. Nenhum relatório de trajeto será gerado.');
+ let dest=db.points.find(p=>p.id===t.pointId);
+ openPrintReport(`Relatório de trajeto — ${t.pointCode}`,`<p><b>Destino:</b> ${esc(t.pointCode)} | <b>Início:</b> ${new Date(t.startedAt).toLocaleString()} | <b>Fim:</b> ${new Date(t.endedAt).toLocaleString()}</p><p><b>Distância registrada:</b> ${Math.round(t.distanceM||0)} m | <b>Posições GPS válidas:</b> ${coords.length} | <b>Chegada dentro de 100 m:</b> ${t.arrival?'Sim':'Não registrada'}</p><p><b>Coordenadas do destino:</b> ${dest?dest.lat.toFixed(6)+', '+dest.lon.toFixed(6):'—'}</p>`,coords.map(c=>[c.lat,c.lon]));
+}
 function makePestWeedReport(){
  const f=currentField();if(!f)return alert('Selecione um talhão.');
  const pts=db.points.filter(p=>p.fieldId===f.id).sort((a,b)=>a.seq-b.seq);
@@ -145,8 +218,9 @@ function openPrintReport(title,details,coords=[],boundary=null){
 }
 // after printing, restore screen
 window.addEventListener('afterprint',()=>{el('reportArea').style.display='none';if(reportMap){reportMap.remove();reportMap=null}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('map')?.classList.contains('map-fullscreen'))toggleMapFullscreen()});
 // Ensure fresh selectors and counts
 refreshAll();
 </script>
 
-<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=6').then(r=>r.update()).catch(()=>{});}</script></body></html>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=9').then(r=>r.update()).catch(()=>{});}</script></body></html>
